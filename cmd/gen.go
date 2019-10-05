@@ -77,7 +77,6 @@ func generate(tmplPath, yamlPath string) {
 	for _, tmpl := range t.Templates() {
 		name := tmpl.Name()
 		name = strings.TrimSuffix(name, filepath.Ext(name))
-		name = name + ".out"
 		o, err := os.Create(name)
 		if err != nil {
 			log.Println("[warning]", err, "skipping.")
