@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -42,6 +43,10 @@ to quickly create a Cobra application.`,
 	},
 }
 
+var funcMap = template.FuncMap{
+	"args": args,
+}
+
 func init() {
 	rootCmd.AddCommand(genCmd)
 
@@ -65,29 +70,32 @@ func generate(tmplPath, yamlPath string) {
 
 	data := make(map[string]interface{})
 
-	if err = yaml.NewDecoder(f).Decode(data); err != nil {
-		log.Fatal(err)
-	}
-
-	t, err := template.ParseGlob(tmplPath)
+	raw, err := ioutil.ReadFile(tmplPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, tmpl := range t.Templates() {
-		name := tmpl.Name()
-		name = strings.TrimSuffix(name, filepath.Ext(name))
-		o, err := os.Create(name)
-		if err != nil {
-			log.Println("[warning]", err, "skipping.")
-			continue
-		}
-
-		if err = tmpl.Execute(o, data); err != nil {
-			log.Println("[warning]", err, "skipping.")
-			o.Close()
-			continue
-		}
-		o.Close()
+	t, err := template.New("template").Funcs(funcMap).Parse(string(raw))
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	if err = yaml.NewDecoder(f).Decode(data); err != nil {
+		log.Fatal(err)
+	}
+
+	name := strings.TrimSuffix(tmplPath, filepath.Ext(tmplPath))
+	o, err := os.Create(name)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer o.Close()
+
+	if err = t.Execute(o, data); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func args(vs ...interface{}) []interface{} {
+	return vs
 }
