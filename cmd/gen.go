@@ -49,6 +49,7 @@ var funcMap = template.FuncMap{
 	"replace":   replace,
 	"encodeURL": encodeURL,
 	"decodeURL": decodeURL,
+	"isEven":    isEven,
 }
 
 func init() {
@@ -114,4 +115,8 @@ func encodeURL(raw string) string {
 
 func decodeURL(encoded string) (string, error) {
 	return url.PathUnescape(encoded)
+}
+
+func isEven(n int) bool {
+	return n%2 == 0
 }
