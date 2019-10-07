@@ -18,6 +18,7 @@ package cmd
 import (
 	"io/ioutil"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -44,8 +45,10 @@ to quickly create a Cobra application.`,
 }
 
 var funcMap = template.FuncMap{
-	"args":    args,
-	"replace": replace,
+	"args":      args,
+	"replace":   replace,
+	"encodeURL": encodeURL,
+	"decodeURL": decodeURL,
 }
 
 func init() {
@@ -103,4 +106,12 @@ func args(vs ...interface{}) []interface{} {
 
 func replace(input, from, to string) string {
 	return strings.Replace(input, from, to, -1)
+}
+
+func encodeURL(raw string) string {
+	return url.PathEscape(raw)
+}
+
+func decodeURL(encoded string) (string, error) {
+	return url.PathUnescape(encoded)
 }
