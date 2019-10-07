@@ -44,7 +44,8 @@ to quickly create a Cobra application.`,
 }
 
 var funcMap = template.FuncMap{
-	"args": args,
+	"args":    args,
+	"replace": replace,
 }
 
 func init() {
@@ -98,4 +99,8 @@ func generate(tmplPath, yamlPath string) {
 
 func args(vs ...interface{}) []interface{} {
 	return vs
+}
+
+func replace(input, from, to string) string {
+	return strings.Replace(input, from, to, -1)
 }
